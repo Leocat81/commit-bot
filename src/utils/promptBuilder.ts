@@ -17,16 +17,31 @@ const DEFAULT_PROMPT = `你是一个专业的 Git 提交信息生成助手。
 
 export function buildPrompt(diff: string, config: CommitBotConfig): string {
   const template = config.customPrompt || DEFAULT_PROMPT;
-  return template.replace('{diff}', diff);
+  return template.replaceAll('{diff}', diff);
 }
 
 export function parseCommitMessage(response: string): string {
-  const lines = response.trim().split('\n');
+  let content = response.trim();
+  
+  content = content.replace(/^```(?:commit)?\s*\n?/i, '').replace(/\n?```$/i, '');
+  
+  const lines = content.split('\n');
+  const filteredLines: string[] = [];
+  let inMessage = false;
+  
   for (const line of lines) {
     const trimmed = line.trim();
-    if (trimmed && !trimmed.startsWith('#') && !trimmed.startsWith('//')) {
-      return trimmed;
+    if (!trimmed.startsWith('#') && !trimmed.startsWith('//')) {
+      inMessage = true;
+      filteredLines.push(line);
+    } else if (inMessage) {
+      filteredLines.push(line);
     }
   }
-  return response.trim();
+  
+  if (filteredLines.length === 0) {
+    return content;
+  }
+  
+  return filteredLines.join('\n').trim();
 }
