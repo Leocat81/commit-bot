@@ -29,6 +29,51 @@ function getGitRepository(): GitRepository {
   return repository;
 }
 
+export async function getDiff(): Promise<string> {
+  const repository = getGitRepository();
+  
+  const stagedDiff = await repository.diff(true);
+  if (stagedDiff && stagedDiff.trim().length > 0) {
+    return stagedDiff;
+  }
+  
+  const unstagedDiff = await repository.diff(false);
+  if (unstagedDiff && unstagedDiff.trim().length > 0) {
+    return unstagedDiff;
+  }
+  
+  const untrackedDiff = await getUntrackedDiff(repository);
+  if (untrackedDiff && untrackedDiff.trim().length > 0) {
+    return untrackedDiff;
+  }
+  
+  throw new Error('No changes found. Please modify some files first.');
+}
+
+async function getUntrackedDiff(repository: any): Promise<string> {
+  const changes = repository.state.workingTreeChanges || [];
+  const untracked = changes.filter((c: any) => c.status === 'untracked');
+  
+  if (untracked.length === 0) {
+    return '';
+  }
+  
+  const diffs: string[] = [];
+  for (const change of untracked) {
+    try {
+      const uri = change.uri;
+      const doc = await vscode.workspace.openTextDocument(uri);
+      const content = doc.getText();
+      const fileName = uri.path.split('/').pop() || uri.path;
+      diffs.push(`diff --git a/${fileName} b/${fileName}\nnew file mode 100000\n--- /dev/null\n+++ b/${fileName}\n${content.split('\n').map((line: string) => '+' + line).join('\n')}`);
+    } catch {
+      continue;
+    }
+  }
+  
+  return diffs.join('\n');
+}
+
 export async function getStagedDiff(): Promise<string> {
   const repository = getGitRepository();
   const diff = await repository.diff(true);

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { getConfig } from '../types/config';
-import { getStagedDiff, getRepository } from '../services/gitService';
+import { getDiff, getRepository } from '../services/gitService';
 import { generateCommitMessage } from '../services/llmService';
 
 export async function generateCommit(): Promise<void> {
@@ -25,7 +25,7 @@ export async function generateCommit(): Promise<void> {
     },
     async () => {
       try {
-        const diff = await getStagedDiff();
+        const diff = await getDiff();
         
         if (diff.length > config.maxDiffSize) {
           const truncatedDiff = diff.substring(0, config.maxDiffSize);
