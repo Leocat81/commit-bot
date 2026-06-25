@@ -25,7 +25,8 @@ interface ChatCompletionResponse {
 function makeRequest(
   url: string,
   options: https.RequestOptions,
-  body?: string
+  body?: string,
+  abortSignal?: AbortSignal
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const req = https.request(url, options, (res) => {
@@ -35,11 +36,30 @@ function makeRequest(
         if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
           resolve(data);
         } else {
-          reject(new Error(`HTTP ${res.statusCode}: ${data}`));
+          reject(new Error(`HTTP ${res.statusCode}`));
         }
       });
     });
+
     req.on('error', reject);
+
+    req.on('close', () => {
+      if (abortSignal?.aborted) {
+        reject(new Error('Request aborted'));
+      }
+    });
+
+    if (abortSignal) {
+      abortSignal.addEventListener('abort', () => {
+        req.destroy();
+      });
+    }
+
+    req.setTimeout(30000, () => {
+      req.destroy();
+      reject(new Error('Request timeout'));
+    });
+
     if (body) {
       req.write(body);
     }
@@ -90,8 +110,14 @@ export async function generateCommitMessage(
     throw new Error('Request cancelled');
   }
 
-  const response = await makeRequest(url, options, bodyString);
-  const parsed: ChatCompletionResponse = JSON.parse(response);
+  const response = await makeRequest(url, options, bodyString, abortSignal);
+
+  let parsed: ChatCompletionResponse;
+  try {
+    parsed = JSON.parse(response);
+  } catch (e) {
+    throw new Error('Failed to parse LLM response');
+  }
   
   if (!parsed.choices || parsed.choices.length === 0) {
     throw new Error('No response from LLM');
