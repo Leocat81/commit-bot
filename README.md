@@ -4,7 +4,9 @@
 [![Installs](https://img.shields.io/visual-studio-marketplace/i/leocat81.commit-bot)](https://marketplace.visualstudio.com/items?itemName=leocat81.commit-bot)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-AI-powered Git commit message generator using DeepSeek.
+![Generating a commit message from the Source Control view](images/use.png)
+
+AI-powered Git commit message generator for any OpenAI-compatible LLM.
 
 Commit Bot reads your current changes, asks your configured LLM for a
 [Conventional Commits](https://www.conventionalcommits.org/) message, and
@@ -16,12 +18,12 @@ writes it directly into the Source Control commit box.
 - Conventional Commits output (`feat:`, `fix:`, `docs:`, ...)
 - Staged, unstaged and untracked changes are all considered
 - Configurable model, API endpoint, output language and prompt
-- Works with any OpenAI-compatible chat completions endpoint
+- Works with any OpenAI-compatible chat completions endpoint (DeepSeek by default)
 
 ## Requirements
 
 - VS Code 1.85.0 or higher
-- A DeepSeek API key (or any OpenAI-compatible API key)
+- An API key for any OpenAI-compatible LLM (DeepSeek is the default)
 
 ## Installation
 
@@ -49,7 +51,7 @@ Then set your API key in Settings under `commitBot.apiKey`.
 | --- | --- | --- |
 | `commitBot.apiKey` | `""` | API key for your LLM provider (required) |
 | `commitBot.model` | `deepseek-chat` | Model name |
-| `commitBot.apiEndpoint` | `https://api.deepseek.com/v1` | OpenAI-compatible base URL |
+| `commitBot.apiEndpoint` | `https://api.deepseek.com/v1` | Base URL of any OpenAI-compatible API |
 | `commitBot.language` | `zh-CN` | Language of the generated message |
 | `commitBot.maxDiffSize` | `10000` | Maximum diff size in characters |
 | `commitBot.customPrompt` | `""` | Optional custom prompt template |

@@ -8,7 +8,7 @@ export async function generateCommit(): Promise<void> {
   
   if (!config.apiKey) {
     const action = await vscode.window.showErrorMessage(
-      'DeepSeek API Key not configured. Please add it in settings.',
+      'LLM API key not configured. Please add it in settings.',
       'Open Settings'
     );
     if (action === 'Open Settings') {
