@@ -2,7 +2,7 @@
   "name": "commit-bot",
   "displayName": "Commit Bot",
   "description": "AI-powered Git commit message generator for any OpenAI-compatible LLM",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "leocat81",
   "license": "MIT",
   "icon": "images/icon.png",
